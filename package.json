@@ -1,0 +1,29 @@
+{
+  "name": "dsmem",
+  "version": "1.0.0",
+  "description": "Distributed system: modelling, execution, monitoring",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vcomm/dsmem.git"
+  },
+  "keywords": [
+    "distributed",
+    "system",
+    "modelling",
+    "execution",
+    "monitoring"
+  ],
+  "author": "Yakov Liskoff",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vcomm/dsmem/issues"
+  },
+  "homepage": "https://github.com/vcomm/dsmem#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

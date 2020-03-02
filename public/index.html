@@ -1,0 +1,156 @@
+﻿<html>
+<head>
+    <title>PNets</title>
+    <script src="scripts/jquery-1.9.1.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="css/bootstrap_override.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="scripts/raphael-min.js"></script>
+    <script src="js/arrows.js"></script>
+    <script src="js/pnet.js"></script>
+    <script src="js/pnet_run.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+	<style>
+	.fa-cog{font-size:36px;color:red;}
+        .cursor-hand {
+            cursor: pointer;
+        }
+	</style>
+</head>
+<body onload="onload()" onresize="body_onresize()">
+<!-- Wrap all page content here -->
+    <div id="wrap">
+
+        <!-- Fixed navbar -->
+        <div class="navbar navbar-default navbar-fixed-top" onclick="">
+            <div class="container-fluid">
+                <div class="nav navbar-header">
+                    <!--<a id="logo_link" class="navbar-brand" style="cursor:pointer" onclick="javascript: window.location = 'index.html'"><img src="images/logo.png" height="25"></a>-->
+                    <div class="btn-group navbar-btn">
+                        <code id="selected_label" onclick="toolbar_clicked()" style="cursor:pointer; float:left;font-family:'Courier New';width: 60px;text-align:center;font-weight:bolder; font-size:12pt; border:solid gray 1px;">&nbsp;</code>
+                    </div>
+                    &nbsp;
+                    <div class="btn-group navbar-btn">
+                        <button class="btn btn-success btn-sm" id="btnTokenAdd">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                        <button class="btn btn-success btn-sm" id="btnTokenRemove">
+                            <span class="glyphicon glyphicon-minus"></span>
+                        </button>
+                    </div>
+                </div>
+                &nbsp;
+                <div class="btn-group navbar-btn">
+                    <button class="btn btn-primary btn-sm" id="btnAddPlace">
+                        <span class="glyphicon glyphicon-plus"></span> Place
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="btnAddTrans">
+                        <span class="glyphicon glyphicon-plus"></span> Transition
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="btnPair">
+                        <span class="glyphicon glyphicon-plus"></span> Pair
+                    </button>                     
+                    <button class="btn btn-primary btn-sm" id="btnAddArc" disabled>
+                        <span class="glyphicon glyphicon-plus"></span> Arc
+                    </button>                    
+                    <button class="btn btn-primary btn-sm" id="btnRemoveObj">
+                        <span class="glyphicon glyphicon-remove"></span> Remove
+                    </button>
+                    <button class="btn btn-primary btn-sm" id="btnClearPaper">
+                        <span class="glyphicon glyphicon-remove-circle"></span> Clear
+                    </button>
+                </div>
+                &nbsp;
+                <div class="btn-group">
+                    <button class="btn btn-danger btn-sm" id="btnRun">
+                        <span class="glyphicon glyphicon-play"></span> Run
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="btnStop">
+                        <span class="glyphicon glyphicon-stop"></span> Stop
+                    </button>
+                </div>
+                &nbsp;
+                <div class="btn-group">
+                    <button class="btn btn-info btn-sm" id="btnSaveLocal">
+                        <span class="glyphicon glyphicon-import"></span> Save
+                    </button>
+                    <button class="btn btn-info btn-sm" id="btnRestoreLocal">
+                        <span class="glyphicon glyphicon-export"></span> Restore
+                    </button>
+                    <input id="fileinput" type="file" style="display:none;" onchange="restore_fromFile()" />
+                    <button class="btn btn-info btn-sm" id="btnFalseInput">
+                        <span class="glyphicon glyphicon-open"></span> Open
+                    </button>
+                    <input id="fileinput" type="file" style="display:none;" />
+                    <button class="btn btn-info btn-sm" id="btnDownload">
+                        <span class="glyphicon glyphicon-download"></span> Download
+                    </button>
+                </div>
+                &nbsp;
+                <div class="btn-group">
+                    <a class="dropdown-toggle btn btn-success btn-sm" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="btnExamples">
+                        <span class="glyphicon glyphicon-menu-hamburger"></span> Examples <span class="caret"></span>
+                    </a>
+                        <ul class="dropdown-menu">
+                            <li><a id="Example1" class="cursor-hand">Example 1</a></li>
+                            <li><a id="Example2" class="cursor-hand">Example 2</a></li>
+                            <li><a id="Example3" class="cursor-hand">Example 3</a></li>
+                            <li><a id="Example4" class="cursor-hand">Example 4</a></li>
+                            <li><a id="Example5" class="cursor-hand">Example 5</a></li>
+                            <!--
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                                -->
+                        </ul>
+                    </a>
+                    <!--
+                    <button class="btn btn-default btn-sm" id="btnToggle">
+                        <span class="glyphicon glyphicon-import"></span>
+                    </button>
+                    -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Begin page content -->
+        <div class="center-container">
+            <div class="center-row" id="center_row" style="">
+                <!--
+                <table style="width:100%;height:100%;padding:0;">
+                    <tr>
+                        <td id="center_row" style="vertical-align:top;"></td>
+                        <td id="toolbox" style="width:250px;background-color:bisque;vertical-align:top;padding-left:10px;padding-top:20px;border-left:1px solid silver;border-top:1px solid silver;">
+                            Тоолбокс<br>
+                        </td>
+                    </tr>
+                </table>
+                -->
+            </div>
+        </div>
+        <div id="footer">
+            <div>
+                &nbsp;
+                <span style="float:left;font-family:'Courier New';width: 60px;text-align:right;padding-right:10px;">
+                    <!--<i class="fa fa-cog fa-spin" style="font-size:36px;color:red;"></i>-->
+                    <i class="fa fa-caret-right" style="font-size:20px;color:silver;" id="status_icon"></i>
+                </span>
+                <span id="status_bar" style="float:left;color:whitesmoke;font-size:10pt;"></span>
+                <span style="float: right; color:silver;font-size:9pt;">&copy; <i>2017 - hp102 production&nbsp;</i>&nbsp;</span>
+            </div>
+            <div class="container">
+            </div>
+        </div>
+    </div>
+    <!-- End page content -->
+</body>
+</html>

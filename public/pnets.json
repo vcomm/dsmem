@@ -1,0 +1,45 @@
+{
+    "id": "template",
+    "type": "PNETS",
+    "prj": "proj_",
+    "svg": [
+      {"places":["P1,414,205,0","P2,820,206,0","P3,418,409,1","P4,555,488,0","P5,819,419,1"],"trans":["T1,323,306","T2,302,489","T3,723,309","T4,698,467"],"arcs":["P1,T1","T1,P3","P3,T2","T2,P4","P4,T3","P2,T3","T3,P5","P5,T4","T2,P1","T4,P2"]}
+    ],
+    "places": [
+      {
+        "key": "P1",
+        "owner": "local",
+        "trans": {
+          "in": ["T1","T3"],
+          "out": ["T2","T4"]
+        },
+        "markers": [
+          {
+            "color": "red",
+            "number": 3
+          }
+        ]
+      }
+    ],
+    "trans": [
+      {
+        "key": "T1",
+        "owner": "local",
+        "action": "reference FSM or script",
+        "places": {
+          "in": ["P1","P4"],
+          "out": ["P2"]
+        },
+        "counts": [
+          {            
+            "color": "blue",
+            "number": 2            
+          },
+          {
+            "color": "red",
+            "number": 3            
+          }
+        ]
+      }
+    ]
+  }
