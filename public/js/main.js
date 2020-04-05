@@ -7,6 +7,9 @@ var paper = null;
 
 function onload() {
     set_paper();
+
+    $('#pickerColor li > a').click(function () { ColorPicker($(this).css( "color" )); });    
+//    ini_button("btnColorPicker", function () { ColorPicker(); this.disabled = true; }, "Color Picker");
     ini_button("btnPair", function () { NewPair(); this.disabled = true; }, "Pairing");
     ini_button("btnAddArc", function () { NewArc(); this.disabled = true; }, "Add Arc");
     ini_button("btnAddTrans", function () { NewTransition(35, 45); }, "Add transition node");

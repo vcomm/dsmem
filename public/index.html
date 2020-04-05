@@ -10,7 +10,7 @@
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    
+
     <link rel="stylesheet" href="css/bootstrap_override.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="scripts/raphael-min.js"></script>
@@ -37,8 +37,22 @@
                 <div class="nav navbar-header">
                     <!--<a id="logo_link" class="navbar-brand" style="cursor:pointer" onclick="javascript: window.location = 'index.html'"><img src="images/logo.png" height="25"></a>-->
                     <div class="btn-group navbar-btn">
-                        <code id="selected_label" onclick="toolbar_clicked()" style="cursor:pointer; float:left;font-family:'Courier New';width: 60px;text-align:center;font-weight:bolder; font-size:12pt; border:solid gray 1px;">&nbsp;</code>
+                        <code id="selected_label" onclick="toolbar_clicked()" style="cursor:pointer; float:left;font-family:'Courier New';width: 60px;text-align:center;font-weight:bolder; font-size:12pt; border:solid gray 1px;">&nbsp;</code>                      
                     </div>
+                    &nbsp;
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" id="btnColorPicker" disabled>
+                        Color picker <span class="caret"></span></button>
+                        <ul class="dropdown-menu" role="menu" id="pickerColor">
+                          <li><a href="#" style="color: #f54f4c;">Red</a></li>
+                          <li><a href="#" style="color: orange;">Orange</a></li>
+                          <li><a href="#" style="color: #d1bc36;">Yellow</a></li>
+                          <li><a href="#" style="color: #71ed58;">Green</a></li>
+                          <li><a href="#" style="color: #36e2eb;">Blue</a></li>
+                          <li><a href="#" style="color: #53a3ed;">Navy</a></li>
+                          <li><a href="#" style="color: #ed53eb;">Purple</a></li>
+                        </ul>
+                    </div>                     
                     &nbsp;
                     <div class="btn-group navbar-btn">
                         <button class="btn btn-success btn-sm" id="btnTokenAdd">
@@ -58,10 +72,10 @@
                         <span class="glyphicon glyphicon-plus"></span> Transition
                     </button>
                     <button class="btn btn-primary btn-sm" id="btnPair">
-                        <span class="glyphicon glyphicon-plus"></span> Pair
+                        <span class="glyphicon glyphicon-tags"></span> Pair
                     </button>                     
                     <button class="btn btn-primary btn-sm" id="btnAddArc" disabled>
-                        <span class="glyphicon glyphicon-plus"></span> Arc
+                        <span class="glyphicon glyphicon-retweet"></span> Arc
                     </button>                    
                     <button class="btn btn-primary btn-sm" id="btnRemoveObj">
                         <span class="glyphicon glyphicon-remove"></span> Remove

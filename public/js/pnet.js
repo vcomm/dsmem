@@ -46,6 +46,11 @@ function ResetPnet() {
     Arcs = [];
 }
 
+function ColorPicker(color) {
+   var obj = Selected.node
+   obj.attr({ "fill": color, "stroke": "brown", "stroke-width": "2" })
+}
+
 function NewPair()
 {
     Pairing = true;
@@ -82,9 +87,11 @@ function select_object(object)
     switch (object.type) {
         case "circle":
             select_circle(object);
+            document.getElementById("btnColorPicker").disabled = false;  
             break;
         case "rect":
             select_rect(object);
+            document.getElementById("btnColorPicker").disabled = false;  
             break;
         case "path":
             select_path(object);
@@ -154,6 +161,7 @@ function select_path(object)
 function unselect() {
     clear_selection();
     type_selected("&nbsp;");
+    document.getElementById("btnColorPicker").disabled = true;  
 }
 function type_selected(text)
 {
