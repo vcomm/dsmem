@@ -61,11 +61,11 @@ function DeserializePnet(pn)
     Arcs = [];
     pn.places.forEach(function (item, index) {
         var a = item.split(",");
-        var p = AddPlace(a[0], Number(a[1]), Number(a[2]), Number(a[3]));
+        var p = AddPlace(a[0], Number(a[1]), Number(a[2]), Number(a[3]), a[4]);
     });
     pn.trans.forEach(function (item, index) {
         var a = item.split(",");
-        var t = AddTransition(a[0], Number(a[1]), Number(a[2]));
+        var t = AddTransition(a[0], Number(a[1]), Number(a[2]), a[3]);
     });
     pn.arcs.forEach(function (item, index) {
         var a = item.split(",");
@@ -89,7 +89,7 @@ function ReadFromFile(file, handler) {
         console.log(err.message);
     }
 }
-// Какой-то добрый самаритянин выложил этот код на StackOverflow
+// пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ StackOverflow
 // Thanks a lot man!
 function DownloadToFile(file_name, text)
 {
@@ -115,6 +115,13 @@ function create_file(text) {
     // returns a URL you can use as a href
     return url;
 };
+function rgb2hex(rgb) {
+    rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
+    return (rgb && rgb.length === 4) ? "#" +
+     ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
+     ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
+     ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
+}
 
 
 

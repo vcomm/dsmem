@@ -47,8 +47,17 @@ function ResetPnet() {
 }
 
 function ColorPicker(color) {
-   var obj = Selected.node
-   obj.attr({ "fill": color, "stroke": "brown", "stroke-width": "2" })
+   if (Selected != null) {
+       Selected.node.attr({ "fill": color, "stroke": "brown", "stroke-width": "2" })
+       if (Selected.node.key.substr(0, 1) == "P") {
+           Places[Selected.node.key].owner = rgb2hex(color);
+       } else if (Selected.node.key.substr(0, 1) == "T") {
+           Trans[Selected.node.key].owner = rgb2hex(color);
+       }    
+   }
+   else {
+        set_status("No selected placed.");
+   }   
 }
 
 function NewPair()
@@ -231,9 +240,11 @@ function remove_arc(key1, key2)
     }
 }
 
-function AddPlace(key, x, y, tokens)
+function AddPlace(key, x, y, tokens, owner)
 {
-    var place = paper.circle(x, y, PL_RADIUS).attr(place_attr);
+    var attr = Object.assign({}, place_attr);
+    attr.fill = owner ? owner : attr.fill;
+    var place = paper.circle(x, y, PL_RADIUS).attr(attr);
     place.drag(drag_move, drag_start, drag_end);
     place.click(place_click);
     place.mouseup(place_mouseup);
@@ -242,10 +253,11 @@ function AddPlace(key, x, y, tokens)
     place.dx = 0;
     place.dy = 0;
     place.key = key;
+    place.owner = attr.fill;
     place.tokens = new Array(tokens);
     place.tokens_count = 0;
     place.caption = draw_text(key, x, y);
-	place.pnString = function() { return this.key + "," + this.x + "," + this.y + "," + this.tokens.length; }
+	place.pnString = function() { return this.key + "," + this.x + "," + this.y + "," + this.tokens.length + "," + this.owner }    
     draw_tokens(place);
     Places[key] = place;
     return place;
@@ -268,17 +280,20 @@ function node_mouseup(node, key) {
     }
 }
 
-function AddTransition(key, x, y)
+function AddTransition(key, x, y, owner)
 {
-    var transition = paper.rect(x - TR_WIDTH / 2, y - TR_HEIGHT/2, TR_WIDTH, TR_HEIGHT).attr(trans_attr);
+    var attr = Object.assign({}, trans_attr);
+    attr.fill = owner ? owner : attr.fill;    
+    var transition = paper.rect(x - TR_WIDTH / 2, y - TR_HEIGHT/2, TR_WIDTH, TR_HEIGHT).attr(attr);
     transition.drag(drag_move, drag_start, drag_end);
     transition.click(transition_click);
     transition.mouseup(transition_mouseup);
     transition.x = x;
     transition.y = y;
     transition.key = key;
+    transition.owner = attr.fill;
     transition.caption = draw_text(key, x, y);
-	transition.pnString = function() { return this.key + "," + this.x + "," + this.y}
+	transition.pnString = function() { return this.key + "," + this.x + "," + this.y + "," + this.owner}
     Trans[key] = transition;
     return transition;
 }

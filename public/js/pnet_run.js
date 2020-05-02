@@ -1,12 +1,14 @@
 var RunList = [];
 var RunIcon = null;
-var ExitRun = false;    // Нажата кнопка "СТОП", т.е.(выйти из симуляции)
+var ExitRun = false;    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅ", пїЅ.пїЅ.(пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 var IsRunning = false;
 var AnimateDelay = 500;
+var RunLoopMode = null;
 
-function StartRun() {
+function StartRun(cblk) {
     IsRunning = true;
     ExitRun = false;
+    RunLoopMode = cblk ? cblk : null;
     RunIcon = new RunIconInitialize(AnimateDelay);
     Run();
 }
@@ -20,13 +22,29 @@ function StopRun() {
 //    RunList = [];
 //}
 
+function ready2Fire(r4run) 
+{
+    Object.keys(Trans).forEach(function (key, ind) {        // пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        var arcsIn = get_arcsIn(key);        
+        var isReady = arcsIn.reduce(function(pass, item) {
+            console.log(`Place In: [${item.from.key}] = ${item.from.tokens.length}`); 
+            return pass -=  item.from.tokens.length ? 1 : 0;
+          }, arcsIn.length);        
+        if (isReady === 0) {
+            r4run.push({owner: Trans[key].owner,trans: Trans[key].key});
+        }
+    });
+    console.log("Ready 4 Run: ",r4run);
+    return r4run;
+}
+
 function Run()
 {
     RunList = [];
     Object.keys(Places).forEach(function (key, ind) { Places[key].tokens_count = Places[key].tokens.length; });
 
     if (!ExitRun) {
-        Object.keys(Trans).forEach(function (key, ind) {        // Цикл по ключам переходов
+        Object.keys(Trans).forEach(function (key, ind) {        // пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             var arcsIn = get_arcsIn(key);
             if (ready_toFire(arcsIn)) {
                 var run_item = {};
@@ -57,15 +75,15 @@ function animate1()
             if (arc.from.tokens.length > 0)
             {
                 var animation = Raphael.animation(new XY(arcX2(arc), arcY2(arc)), AnimateDelay, "easeIn");
-                var ttoken = arc.from.tokens.pop();                                           // Взять токен
-                if (typeof ttoken != "undefined" && ttoken.hasOwnProperty('type'))            // Надо проверить на случай > 10
+                var ttoken = arc.from.tokens.pop();                                           // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+                if (typeof ttoken != "undefined" && ttoken.hasOwnProperty('type'))            // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ > 10
                 {
-                    ttoken.remove();                                                          // Можно удалить
+                    ttoken.remove();                                                          // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 }
-                ttoken = paper.circle(arcX1(arc), arcY1(arc), TN_RADIUS).attr(token_attr);            // Добавить токен для анимации
+                ttoken = paper.circle(arcX1(arc), arcY1(arc), TN_RADIUS).attr(token_attr);            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 redraw_tokens(arc.from, arc.from.x, arc.from.y);
-                run_item.temp_tokens.push(ttoken);                                            //  и переместить во временный массив
-                run_item.temp_tokens[run_item.temp_tokens.length - 1].animate(animation);     // Теперь анимируем
+                run_item.temp_tokens.push(ttoken);                                            //  пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+                run_item.temp_tokens[run_item.temp_tokens.length - 1].animate(animation);     // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             }
         });
     });
@@ -94,7 +112,14 @@ function animate3() {
             AddToken(arc.to);
         });
     });
-    Run();
+    if(!RunLoopMode) Run();
+    else RunLoopMode()
+/*
+    {
+        document.getElementById("btnStep").disabled = false;   
+        document.getElementById("btnStepexec").disabled = false;   
+    }
+*/    
 }
 
 //Updated: 3.02.2017
@@ -108,7 +133,7 @@ function ready_toFire(arcsIn) {
             item.from.tokens_count--;
         }
     });
-    if (!isReady) { //Если неудачно, то восстановить токены
+    if (!isReady) { //пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         arcsIn.forEach(function (item, ind) { item.from.tokens_count = item.from.tokens.length; });
     }
     return isReady;

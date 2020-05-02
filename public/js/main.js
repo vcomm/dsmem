@@ -3,21 +3,265 @@ function toolbar_clicked()
     unselect();
 }
 
+function openNav(x) {
+    x.classList.toggle("change");
+    let mon  = document.getElementById("accordion");
+    let nav  = document.getElementById("jsonTemplate");
+//    console.log(nav.style.width);
+    if ( nav.style.width == "0px") {
+         nav.style.width = "30%";	
+         mon.style.height = "250px";
+         mon.style.borderStyle = "double";
+         attachBIOS(SerializePnet(Places, Trans, Arcs))
+
+         document.getElementById("btnStep").disabled = true;
+         document.getElementById("btnRun").disabled  = true;
+         document.getElementById("btnStop").disabled = true;         
+
+         document.getElementById("btnPair").disabled = true;
+         document.getElementById("btnAddArc").disabled = true;
+         document.getElementById("btnAddTrans").disabled = true;
+         document.getElementById("btnAddPlace").disabled = true;
+         document.getElementById("btnRemoveObj").disabled = true;
+         document.getElementById("btnClearPaper").disabled = true;   
+
+         document.getElementById("btnRestoreLocal").disabled = true;     
+         document.getElementById("btnFalseInput").disabled = true;        
+    } else {	  
+         nav.style.width = "0px";	
+         mon.style.height = "0px";
+         mon.style.borderStyle = "unset";
+         document.getElementById("btnStep").disabled = false;
+         document.getElementById("btnRun").disabled  = false;
+         document.getElementById("btnStop").disabled = false;      
+         
+         document.getElementById("btnPair").disabled = false;
+         document.getElementById("btnAddArc").disabled = false;
+         document.getElementById("btnAddTrans").disabled = false;
+         document.getElementById("btnAddPlace").disabled = false;
+         document.getElementById("btnRemoveObj").disabled = false;
+         document.getElementById("btnClearPaper").disabled = false;      
+         
+         document.getElementById("btnRestoreLocal").disabled = false;
+         document.getElementById("btnFalseInput").disabled = false;
+    }
+}
+
+function attachBIOS(json) {
+    let pnets = editor.get()
+    pnets.model = JSON.parse(json)
+    fetch('/attach', {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body:json
+    })  
+        .then(res => res.json())
+        .then(bios => {             
+            pnets.attach = bios
+            editor.set(pnets)
+        })
+        .catch(console.error.bind(console));
+}
+
+function buildJSON(json,r4run) {
+    let pnets = editor.get()
+    pnets.model = JSON.parse(json)
+    pnets.model.r4run = r4run    
+    editor.set(pnets)
+    fetch('/build', {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: editor.getText()
+    })  
+        .then(res => res.json())
+        .then(exec => {             
+            pnets.execute = exec
+            pnets.execute.next = []
+            step_clicked(() => {
+                Object.keys(Places).forEach(function (key) {
+                    pnets.execute.next.push(`${Places[key].key}(${Places[key].tokens.length})`);
+                });
+                editor.set(pnets)
+                //log(JSON.stringify(pnets.execute));    
+                backlog(pnets.execute);             
+                document.getElementById("btnStepexec").disabled = false;
+            })                       
+        })
+        .catch(console.error.bind(console));
+}
+
+function assignJSON() {    
+    fetch('/assign', {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body:editor.getText()
+    })  
+        .then(res => res.json())
+        .then(json => {
+            let pnets = editor.get()
+            pnets.task = json.taskID
+            editor.set(pnets)
+        })
+        .catch(console.error.bind(console));
+}
+
+function execMonitor() {
+      if (!window.EventSource) {
+        console.log("Your browser not supported EventSource.");
+        return;
+      }  
+      var source = new EventSource("/execute/"+editor.get().task);
+      source.onopen = function(e) {
+        console.log("Event: open: ",e);
+      };   
+      source.onmessage = function(e) {
+        console.log("Event: message, data: ",e.data);
+        log(e.data);
+      };                    
+      source.onerror = function(e) {
+        console.log("Event: error - ",e);
+        if (this.readyState == EventSource.CONNECTING) {
+            console.log(`Reconnection (readyState=${this.readyState})...`);
+        } else {
+            console.log("Reconnection error");
+        }
+      };   
+      return source
+}
+
+function destroyMonitor() {
+    monitor.close();
+    console.log("Destroy execution monitoring");
+}
+
+function log(msg) {
+    $("#accordion")
+        .append(`<a href="#!" class="list-group-item list-group-item-action">${msg}</a>`)
+        .scrollTop(250);
+//    const elem = document.getElementById("Monitor")
+//    elem.innerHTML += msg + "<br>";
+//    elem.scrollIntoView(false);
+//    document.documentElement.scrollTop = 99999999;    
+}
+
+function backlog(msg) {
+    var dt = new Date()
+    dt = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds()
+    var count = parseInt($("#accordion").attr("count"))+1
+    $("#accordion")
+    .append(`
+    <div class="card">
+        <div class="card-header" role="tab" id="heading${count}">
+        <h5 class="mb-0">
+            <a data-toggle="collapse" href="#collapse${count}" aria-expanded="true" aria-controls="collapse${count}">
+            ${dt} | STEP-${count}: [${msg.curr.toString()}] => [${msg.next.toString()}]
+            </a>
+        </h5>
+        </div>
+        <div id="collapse${count}" class="collapse" role="tabpanel" aria-labelledby="heading${count}">
+        <div class="card-body">
+                    ${printlist(msg.step)}
+        </div>
+        </div>
+    </div>`)
+    .attr("count",`${count}`)
+    .scrollTop(250);    
+}
+
+function printlist(list) {
+    var ret = ``
+    jQuery.each( list, function( i, val ) {  
+        if (Array.isArray(val)) {
+            ret += printlist(val)
+        } else {      
+            if(i > 0) ret +=`<li>${val}</li>`
+            else      ret += `<ul style="color:${val}">`
+        }
+      });        
+    ret +=`</ul>`
+    return ret
+}
+
+function initJSONeditor(id) {
+    // JSON Editor
+    var container = document.getElementById(id);
+    var options = {
+        mode: 'tree',
+        modes: ['code', 'form', 'text', 'tree', 'view'], // allowed modes
+        onError: function (err) {
+            alert(err.toString());
+        },
+        onModeChange: function (newMode, oldMode) {
+            console.log('Mode switched from', oldMode, 'to', newMode);
+        }
+    };
+    var pnets = {
+        "id": "template",
+        "type": "PNETS",
+        "prj": "proj_"
+        /*,
+        "model": {"places":["P1,414,205,0","P2,820,206,0","P3,418,409,1","P4,555,488,0","P5,819,419,1"],"trans":["T1,323,306","T2,302,489","T3,723,309","T4,698,467"],"arcs":["P1,T1","T1,P3","P3,T2","T2,P4","P4,T3","P2,T3","T3,P5","P5,T4","T2,P1","T4,P2"]},
+        "execute": {
+            "places": [
+            {
+                "key": "P1",
+                "owner": "local",
+                "trans": {
+                "in": ["T1","T3"],
+                "out": ["T2","T4"]
+                },
+                "markers": 3
+            }
+            ],
+            "trans": [
+            {
+                "key": "T1",
+                "owner": "local",
+                "places": {
+                "in": ["P1","P4"],
+                "out": ["P2"]
+                },
+                "counts": 1,
+                "actions": [
+                    "reference FSM or script name"
+                ]            
+            }
+            ]
+        },
+        "monitor":{}
+*/        
+      };
+
+    editor = new JSONEditor(container, options, pnets);    
+}
+
+var editor = null;
 var paper = null;
+var monitor = null;
 
 function onload() {
     set_paper();
 
     $('#pickerColor li > a').click(function () { ColorPicker($(this).css( "color" )); });    
-//    ini_button("btnColorPicker", function () { ColorPicker(); this.disabled = true; }, "Color Picker");
+    ini_button("btnAssign", function () { assignJSON(); }, "Assignment actions to Petri Net graph");
+    ini_button("btnStepexec", function () { this.disabled = true; buildJSON(SerializePnet(Places, Trans, Arcs),ready2Fire([])) }, "Step Forward Execution Petri Net graph");
+    ini_button("btnExecute", function () { monitor = execMonitor(); }, "Execute Petri Net graph");
+    ini_button("btnDestroy", function () { destroyMonitor(); }, "Desctroy Petri Net monitoring");        
     ini_button("btnPair", function () { NewPair(); this.disabled = true; }, "Pairing");
     ini_button("btnAddArc", function () { NewArc(); this.disabled = true; }, "Add Arc");
     ini_button("btnAddTrans", function () { NewTransition(35, 45); }, "Add transition node");
     ini_button("btnAddPlace", function () { NewPlace(35, 45); }, "Add place node");
     ini_button("btnRemoveObj", function () { RemoveObject(); }, "Remove selected object");
     ini_button("btnClearPaper", function () { clear_paper(); }, "Clear canvas");
-    ini_button("btnRun", function () { run_clicked(); }, "Run Petri Net graph");
-    ini_button("btnStop", function () { stop_clicked(); }, "Stop running");
+    ini_button("btnStep", function () { this.disabled = true; step_clicked(()=>{document.getElementById("btnStep").disabled = false;}); }, "Step running modeling Petri Net graph");
+    ini_button("btnRun", function () { run_clicked(); }, "Run modeling Petri Net graph");
+    ini_button("btnStop", function () { stop_clicked(); }, "Stop running modeling Petri Net graph");
     ini_button("btnSaveLocal", function () { save_local(); }, "Save to local memory");
     ini_button("btnRestoreLocal", function () { restore_local(); }, "Restore from local memory");
     ini_button("btnFalseInput", function () { open_clicked(); }, "Open from file");
@@ -44,6 +288,8 @@ function onload() {
     //    tb.innerHTML = "Events<br>Events<br>Events<br>Events<br>Events<br>";
     //    tb.width = "500px";
     //};
+
+    initJSONeditor("jsoneditor")
 }
 function ini_button(id, onclick, tooltip)
 {
@@ -88,6 +334,18 @@ function paper_initialize()
 {
     set_status("Ready");
     //paper.rect(0, 0, PAPER_WIDTH, PAPER_HEIGHT).attr({ "stroke-width": "4", "stroke": "red", "fill": "white" });
+}
+function step_clicked(cblk) {
+    if (graph_loaded()) {
+        set_run_icon();
+        set_status("Step Over Running...");
+        lock_status();
+        StartRun(cblk);
+    }
+    else
+    {
+        set_status("No valid graph loaded.");
+    }    
 }
 function run_clicked() {
     //console.log("graph_loaded=" + graph_loaded());

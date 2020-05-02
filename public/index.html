@@ -13,6 +13,11 @@
 
     <link rel="stylesheet" href="css/bootstrap_override.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link href="css/app.css" rel="stylesheet" type="text/css">
+    <link href="css/jsoneditor.css" rel="stylesheet" type="text/css">
+    <script src="js/jsoneditor.js"></script>
+
     <script src="scripts/raphael-min.js"></script>
     <script src="js/arrows.js"></script>
     <script src="js/pnet.js"></script>
@@ -45,7 +50,7 @@
                         Color picker <span class="caret"></span></button>
                         <ul class="dropdown-menu" role="menu" id="pickerColor">
                           <li><a href="#" style="color: #f54f4c;">Red</a></li>
-                          <li><a href="#" style="color: orange;">Orange</a></li>
+                          <li><a href="#" style="color: #fca80b;">Orange</a></li>
                           <li><a href="#" style="color: #d1bc36;">Yellow</a></li>
                           <li><a href="#" style="color: #71ed58;">Green</a></li>
                           <li><a href="#" style="color: #36e2eb;">Blue</a></li>
@@ -64,7 +69,7 @@
                     </div>
                 </div>
                 &nbsp;
-                <div class="btn-group navbar-btn">
+                <div class="btn-group navbar-btn" id="toolDesign">
                     <button class="btn btn-primary btn-sm" id="btnAddPlace">
                         <span class="glyphicon glyphicon-plus"></span> Place
                     </button>
@@ -81,11 +86,14 @@
                         <span class="glyphicon glyphicon-remove"></span> Remove
                     </button>
                     <button class="btn btn-primary btn-sm" id="btnClearPaper">
-                        <span class="glyphicon glyphicon-remove-circle"></span> Clear
+                        <span class="glyphicon glyphicon-ban-circle"></span> Clear
                     </button>
                 </div>
                 &nbsp;
-                <div class="btn-group">
+                <div class="btn-group" id="toolSimulate">
+                    <button class="btn btn-danger btn-sm" id="btnStep">
+                        <span class="glyphicon glyphicon-step-forward"></span> Step
+                    </button>                 
                     <button class="btn btn-danger btn-sm" id="btnRun">
                         <span class="glyphicon glyphicon-play"></span> Run
                     </button>
@@ -94,7 +102,7 @@
                     </button>
                 </div>
                 &nbsp;
-                <div class="btn-group">
+                <div class="btn-group" id="toolManage">
                     <button class="btn btn-info btn-sm" id="btnSaveLocal">
                         <span class="glyphicon glyphicon-import"></span> Save
                     </button>
@@ -111,7 +119,7 @@
                     </button>
                 </div>
                 &nbsp;
-                <div class="btn-group">
+                <div class="btn-group" id="toolExample">
                     <a class="dropdown-toggle btn btn-success btn-sm" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" id="btnExamples">
                         <span class="glyphicon glyphicon-menu-hamburger"></span> Examples <span class="caret"></span>
                     </a>
@@ -133,12 +141,45 @@
                     </button>
                     -->
                 </div>
-            </div>
+                <div class="navigation" onclick="openNav(this)" contextmenu="mymenu">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                </div>                 
+            </div>     
+            <div id="jsonTemplate" class="sidenav" style="width: 0px;">    
+                <div class="btn-group" style="margin-left: 140px;margin-top: -53px;">
+                    <button class="btn btn-warning btn-sm" id="btnStepexec">
+                        <span class="glyphicon glyphicon-step-forward"></span> Step FF
+                    </button>                     
+                    <button class="btn btn-warning btn-sm" id="btnAssign">
+                        <span class="glyphicon glyphicon-share"></span> Assign
+                    </button>                       
+                    <button class="btn btn-warning btn-sm" id="btnExecute" disabled>
+                        <span class="glyphicon glyphicon-play"></span> Execute
+                    </button>          
+                    <button class="btn btn-warning btn-sm" id="btnDestroy" disabled>
+                        <span class="glyphicon glyphicon-stop"></span> Destroy
+                    </button>                                  
+                </div>          
+                <div id="jsoneditor"></div>
+            </div> 
+            <div id="accordion" class="output" role="tablist" count="0"></div>  
+        <!--
+            <div id="Monitor" class="output list-group" role="tablist"></div>  
+        
+            <div id="leftSidenav">
+                <a href="#" id="about">About</a>
+                <a href="#" id="blog">Blog</a>
+                <a href="#" id="projects">Projects</a>
+                <a href="#" id="contact">Contact</a>
+            </div>   
+        -->           
         </div>
 
         <!-- Begin page content -->
         <div class="center-container">
-            <div class="center-row" id="center_row" style="">
+            <div class="center-row" id="center_row">
                 <!--
                 <table style="width:100%;height:100%;padding:0;">
                     <tr>
@@ -159,7 +200,7 @@
                     <i class="fa fa-caret-right" style="font-size:20px;color:silver;" id="status_icon"></i>
                 </span>
                 <span id="status_bar" style="float:left;color:whitesmoke;font-size:10pt;"></span>
-                <span style="float: right; color:silver;font-size:9pt;">&copy; <i>2017 - hp102 production&nbsp;</i>&nbsp;</span>
+                <span style="float: right; color:silver;font-size:9pt;">&copy; <i>2015 - Video Comunication, All rigth reserved&nbsp;</i>&nbsp;</span>
             </div>
             <div class="container">
             </div>
