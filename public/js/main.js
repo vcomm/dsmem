@@ -268,11 +268,14 @@ function onload() {
     ini_button("btnDownload", function () { save_toFile(); }, "Download as file");
     ini_button("btnTokenAdd", function () { token_add(); }, "Add token to selected place");
     ini_button("btnTokenRemove", function () { token_remove(); }, "Remove token from selected place");
+    ini_button("btnTrnTurn", function () { /*rectancle_turn();*/ }, "Transition turn 90");
     ini_button("Example1", function () { load_example(1); }, "Example 1");
     ini_button("Example2", function () { load_example(2); }, "Example 2");
     ini_button("Example3", function () { load_example(3); }, "Example 3");
     ini_button("Example4", function () { load_example(4); }, "Example 4");
     ini_button("Example5", function () { load_example(5); }, "Example 5");
+    ini_button("Example6", function () { load_example(6); }, "Critical section");
+    ini_button("Example7", function () { load_example(7); }, "Dining philosopher");
     var elem = null;
     elem = document.getElementById("selected_label");
     elem.onmouseover = function () { set_status("Displays selected object (click to unselect)"); };
@@ -421,6 +424,8 @@ function load_example(i) {
         pn[3] = { "places": ["P1,383,303,1", "P2,384,219,1", "P3,385,147,1", "P4,632,218,1"], "trans": ["T1,497,301", "T2,497,224", "T4,495,151"], "arcs": ["P1,T1", "P2,T2", "P4,T1", "T4,P4", "T4,P1", "T4,P2", "T4,P3", "T1,P4", "T2,P4", "P4,T2", "P3,T4", "P4,T4"] };
         pn[4] = { "places": ["P1,78,186,1", "P2,75,296,1", "P3,82,395,1", "P4,301,148,0", "P5,310,442,0", "P6,306,246,0", "P7,307,339,0"], "trans": ["T1,186,238", "T2,188,342", "T3,186,153", "T4,188,443"], "arcs": ["P1,T1", "P2,T1", "P2,T2", "P3,T2", "T1,P4", "T2,P5", "T2,P2", "T1,P2", "T2,P6", "P6,T3", "P4,T3", "T3,P1", "T1,P7", "P7,T4", "T4,P3", "P5,T4"] };
         pn[5] = { "places": ["P1,440,90,1", "P2,531,65,1", "P3,617,44,1", "P4,536,344,1", "P5,303,189,0", "P6,537,194,0", "P7,766,188,0"], "trans": ["T1,210,189", "T2,446,191", "T3,683,191", "T4,877,186", "T5,614,191", "T6,382,188"], "arcs": ["P1,T1", "P2,T2", "P3,T3", "P4,T1", "P4,T2", "P4,T3", "T1,P5", "T2,P6", "T3,P7", "P7,T4", "P6,T5", "P5,T6", "T6,P4", "T5,P4", "T4,P4", "T4,P1", "T4,P2", "T4,P3"] };
+        pn[6] = { "places": ["P1,735,325,1,orange","P2,369,321,0,orange","P3,372,175,1,orange","P4,360,485,0,orange","P5,1143,338,0,orange","P6,1145,164,1,orange","P7,1131,497,0,orange"],"trans":["T1,554,263,#71ed58","T2,552,391,#71ed58","T3,941,271,#ed53eb","T4,940,409,#ed53eb","T5,1368,341,#ed53eb","T6,159,308,#ed53eb"],"arcs":["T1,P2","T2,P1","P1,T1","P2,T2","T2,P4","P1,T3","T4,P1","P5,T4","T3,P5","T4,P7","P3,T1","P6,T3","P7,T5","T5,P6","T6,P3","P4,T6"]};
+        pn[7] = { "places": ["P1,867,230,0,#71ed58","P2,1001,231,1,#71ed58","P3,862,776,1,#53a3ed","P4,1010,780,0,#53a3ed","P5,499,437,0,#ed53eb","P6,498,559,1,#ed53eb","P7,1374,429,1,#f54f4c","P8,1379,562,0,#f54f4c","P9,516,235,1,orange","P10,1365,224,1,orange","P11,499,771,1,orange","P12,1383,783,1,orange"],"trans":["T1,934,140,#71ed58","T2,935,317,#71ed58","T3,940,669,#53a3ed","T4,939,896,#53a3ed","T5,621,487,#ed53eb","T6,383,489,#ed53eb","T7,1258,492,#f54f4c","T8,1499,488,#f54f4c"],"arcs":["T1,P1","T2,P2","P1,T2","P2,T1","T3,P3","P3,T4","T4,P4","P4,T3","P5,T6","T6,P6","P6,T5","T5,P5","T7,P8","P8,T8","T8,P7","P7,T7","T1,P9","T1,P10","P10,T2","P9,T2","P9,T5","T6,P9","T6,P11","P11,T5","T8,P10","T8,P12","P12,T7","P12,T3","P10,T7","T4,P11","T4,P12","P11,T3"]}; 
         clear_paper();
         DeserializePnet(pn[i]);
     }
