@@ -268,7 +268,7 @@ function onload() {
     ini_button("btnDownload", function () { save_toFile(); }, "Download as file");
     ini_button("btnTokenAdd", function () { token_add(); }, "Add token to selected place");
     ini_button("btnTokenRemove", function () { token_remove(); }, "Remove token from selected place");
-    ini_button("btnTrnTurn", function () { /*rectancle_turn();*/ }, "Transition turn 90");
+//    ini_button("btnTrnTurn", function () { rectancle_turn(); }, "Transition turn 90");
     ini_button("Example1", function () { load_example(1); }, "Example 1");
     ini_button("Example2", function () { load_example(2); }, "Example 2");
     ini_button("Example3", function () { load_example(3); }, "Example 3");
