@@ -27,7 +27,11 @@ app.post('/attach', (req, res) => {
 app.post('/build', (req, res) => {
     console.log("build: msg :",req.body);
     res.setHeader('Content-Type', 'application/json');
-    res.json(execJSON.build(req.body));
+    const bld = execJSON.build(req.body);
+    if (bld.error)
+        res.status(bld.error);
+    else
+        res.json(bld);
 })
 /*
 let clientId = 0;

@@ -68,7 +68,7 @@ function attachBIOS(json) {
 function buildJSON(json,r4run) {
     let pnets = editor.get()
     pnets.model = JSON.parse(json)
-    pnets.model.r4run = r4run    
+    //pnets.model.r4run = r4run    
     editor.set(pnets)
     fetch('/build', {
         method: 'post',

@@ -1,6 +1,10 @@
 'use strict';
 
+const pnetsRegulator = require('./regulator').mngPNETS;
+
 const buildJSON = (function () {
+
+    let requlator = new pnetsRegulator
 
     let template = {
         "places": [
@@ -58,7 +62,7 @@ const buildJSON = (function () {
             ]
         }      
     }
-    
+
     return {
         attach: function(model) {
             //console.log("attach trans by owners :",model.trans);
@@ -78,25 +82,16 @@ const buildJSON = (function () {
               }, {});
             return owners
         },        
-        build: function(pnets) {
-            let curr = pnets.model.places.map((item) => {
-                let a = item.split(",");
-                let place = a[0];
-                let token = a[3];                
-                return `${place}(${token})`;
-            })
-            let step = pnets.model.r4run.reduce((stack,item) => {                
-                let trarr = []
-                let trn = pnets.attach[item.owner][item.trans]
-                trarr.push(`${item.owner}`)
-                trn.forEach((action) => {                    
-                    trarr.push(` => ${item.trans}[${action}]`)
-                })
-                if(!trn.length) trarr.push(` => ${item.trans}`)
-                stack.push(trarr)
-                return stack;
-            }, [])
-            return {curr: curr,step: step}
+        build: function(pnets) { 
+            requlator.initModel(pnets.model)
+            const curr = requlator.getConditions()
+            const r2Fire = requlator.ready2Fire()
+            const step = requlator.executeTrans(pnets, r2Fire.trans)
+            if (requlator.placesMarkers(r2Fire.trans)) {
+                return {curr: curr, step: step, new: requlator.getConditions()}
+            } else {
+                return {curr: curr, error: 400}
+            }
         }
     }
 })()
