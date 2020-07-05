@@ -24,6 +24,7 @@ app.post('/attach', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.json(execJSON.attach(req.body));
 })
+
 app.post('/build', (req, res) => {
     console.log("build: msg :",req.body);
     res.setHeader('Content-Type', 'application/json');
@@ -33,52 +34,34 @@ app.post('/build', (req, res) => {
     else
         res.json(bld);
 })
-/*
-let clientId = 0;
-let clients = {}; // <- Keep a map of attached clients
 
-const Stream = new EventEmitter(); 
-Stream.on("push", (id, data) => {
-    clients[id].res.write("data: " + JSON.stringify(data) + "\n\n");
-    console.log("update: monotoring :",data); 
+const moderatorPNETS = require('./server/manager')
+
+app.get('/suid', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.json({sessionID: moderatorPNETS.genuuid()});    
 });
 
-function scapeMetric(interval) {
-    return setInterval(() => {
-        for (clientId in clients) {
-            Stream.emit("push", clientId, { msg: {id: process.env.INSTANCE_ID,memory:process.memoryUsage()} });
-        };
-    }, interval);
-}
-*/
-const moderatorPNETS = require('./server/manager')
-app.get('/execute/:taskid', (req, res) => {  
-    console.log("execute: monotoring :",req.params.taskid);      
+app.get('/subscribe/:suid', (req, res) => {  
+    //console.log("subscribe: monotoring :",req.params.taskid);      
 	res.writeHead(200, {
 		'Content-Type': 'text/event-stream', // <- Important headers
 		'Cache-Control': 'no-cache',
 		'Connection': 'keep-alive'
 	});
     res.write('\n');
-    moderatorPNETS.monitor(req,res,req.params.taskid)
-    /*
-	(function (clientId) {
-        clients[clientId] = { 
-            res : res, // <- Add this client to those we consider "attached"
-            tid : scapeMetric(3000)
-        }
-		req.on("close", function () {
-            clearInterval(clients[clientId].tid)
-			delete clients[clientId]
-		}); // <- Remove this client when he disconnects
-    })(++clientId)
-    */
+    moderatorPNETS.subscribe(req,res,req.params.suid)
 })
 
 app.post('/assign', (req, res) => {
     console.log("assign: msg :",req.body);
     res.setHeader('Content-Type', 'application/json');
     res.json(moderatorPNETS.assign(req.body));    
+})
+
+app.get('/delegate', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.json(moderatorPNETS.delegate());    
 })
 
 const server = http.createServer(app);

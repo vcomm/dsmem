@@ -12,7 +12,9 @@ function openNav(x) {
          nav.style.width = "30%";	
          mon.style.height = "250px";
          mon.style.borderStyle = "double";
+
          attachBIOS(SerializePnet(Places, Trans, Arcs))
+         monitor = subscribeMonitor();
 
          document.getElementById("btnStep").disabled = true;
          document.getElementById("btnRun").disabled  = true;
@@ -44,7 +46,24 @@ function openNav(x) {
          
          document.getElementById("btnRestoreLocal").disabled = false;
          document.getElementById("btnFalseInput").disabled = false;
+
+         destroyMonitor();
     }
+}
+
+function getSessionID() {
+    fetch('/suid', {
+        method: 'get',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })  
+        .then(res => res.json())
+        .then(json => {             
+            subscribeSessionID = json.sessionID
+            console.log(`Usique session ID = ${subscribeSessionID}`);
+        })
+        .catch(console.error.bind(console));    
 }
 
 function attachBIOS(json) {
@@ -111,18 +130,26 @@ function assignJSON() {
         .catch(console.error.bind(console));
 }
 
-function execMonitor() {
+function subscribeMonitor() {
       if (!window.EventSource) {
         console.log("Your browser not supported EventSource.");
         return;
       }  
-      var source = new EventSource("/execute/"+editor.get().task);
+      var source = new EventSource("/subscribe/"+subscribeSessionID);
       source.onopen = function(e) {
         console.log("Event: open: ",e);
       };   
       source.onmessage = function(e) {
         console.log("Event: message, data: ",e.data);
-        log(e.data);
+        
+        const data = JSON.parse(e.data)
+        if (!data) return;        
+        if (!monitorStatus && data.hasOwnProperty('subscribe')) {
+            log(`Monitoring Subscribe ID: ${data.subscribe}`);
+            monitorStatus = true;
+        } else if (data.hasOwnProperty('execute'))   
+            backlog(data.execute);
+            
       };                    
       source.onerror = function(e) {
         console.log("Event: error - ",e);
@@ -137,6 +164,7 @@ function execMonitor() {
 
 function destroyMonitor() {
     monitor.close();
+    monitorStatus = false;
     console.log("Destroy execution monitoring");
 }
 
@@ -158,7 +186,7 @@ function backlog(msg) {
     .append(`
     <div class="card">
         <div class="card-header" role="tab" id="heading${count}">
-        <h5 class="mb-0">
+        <h5 class="mb-0" ondblclick="step_animated('${msg.curr}',()=>{})">
             <a data-toggle="collapse" href="#collapse${count}" aria-expanded="true" aria-controls="collapse${count}">
             ${dt} | STEP-${count}: [${msg.curr.toString()}] => [${msg.next.toString()}]
             </a>
@@ -244,14 +272,16 @@ function initJSONeditor(id) {
 var editor = null;
 var paper = null;
 var monitor = null;
+var monitorStatus = false;
+var subscribeSessionID = null;
 
 function onload() {
     set_paper();
 
     $('#pickerColor li > a').click(function () { ColorPicker($(this).css( "color" )); });    
     ini_button("btnAssign", function () { assignJSON(); }, "Assignment actions to Petri Net graph");
-    ini_button("btnStepexec", function () { this.disabled = true; buildJSON(SerializePnet(Places, Trans, Arcs),ready2Fire([])) }, "Step Forward Execution Petri Net graph");
-    ini_button("btnExecute", function () { monitor = execMonitor(); }, "Execute Petri Net graph");
+    ini_button("btnStepexec", function () { this.disabled = true; buildJSON(SerializePnet(Places, Trans, Arcs)/*,ready2Fire([])*/) }, "Step Forward Execution Petri Net graph");
+    ini_button("btnExecute", function () { monitor = subscribeMonitor(); }, "Execute Petri Net graph");
     ini_button("btnDestroy", function () { destroyMonitor(); }, "Desctroy Petri Net monitoring");        
     ini_button("btnPair", function () { NewPair(); this.disabled = true; }, "Pairing");
     ini_button("btnAddArc", function () { NewArc(); this.disabled = true; }, "Add Arc");
@@ -293,6 +323,7 @@ function onload() {
     //};
 
     initJSONeditor("jsoneditor")
+    getSessionID()
 }
 function ini_button(id, onclick, tooltip)
 {
@@ -350,6 +381,44 @@ function step_clicked(cblk) {
         set_status("No valid graph loaded.");
     }    
 }
+function step_animated(conditions,cblk) {
+    if (graph_loaded()) {
+        set_run_icon();
+        set_status("Selected Step Animation...");
+        lock_status();
+        set_conditions(conditions)
+        setTimeout(()=>{StartRun(cblk)},1000)
+    }
+    else
+    {
+        set_status("No valid graph loaded.");
+    }      
+}
+function set_conditions(conditions) {
+    const places = conditions.split(",");
+    
+    Object.keys(Places).forEach(function (key) {
+        remove_tokens(Places[key])
+        Places[key].tokens = []
+    });
+    
+    places.forEach(elem => {
+        const place  =  elem.substring(0, elem.lastIndexOf("("));
+        const marker =  parseInt(elem.substring(
+            elem.lastIndexOf("(") + 1, 
+            elem.lastIndexOf(")")
+        ))
+        console.log(`Clear: ${place}[${marker}] => ${Places[place].tokens.length}`)
+            
+        if (marker) {
+            for (let i=0;i<marker;i++) {
+                 Places[place].tokens.push({});
+            }
+            draw_tokens(Places[place]);
+        } 
+        console.log(`Set: ${place}[${marker}] => ${Places[place].tokens.length}`)         
+    });
+} 
 function run_clicked() {
     //console.log("graph_loaded=" + graph_loaded());
     if (graph_loaded()) {
